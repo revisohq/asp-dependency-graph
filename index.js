@@ -1,5 +1,6 @@
 import glob from 'glob'
 import throat from 'throat'
+import { stdout as log } from 'single-line-log'
 import analyzer from './src/analyze-asp-file'
 import * as neo from './src/neo'
 
@@ -16,6 +17,11 @@ var p = Promise.all([
 
 p.then(files => files.map(throat(1, file => analyzer(baseDir, file))))
 	.then(a => Promise.all(a))
-	.then(files => Promise.all(files.map(throat(1, file => neo.createFile(file)))))
-	.then(console.log.bind(console, 'done'))
+	.then(files => {
+		var complete = 0
+		return files.reduce((p, file) => p
+			.then(() => neo.createFile(file))
+			.then(()=>log(`${++complete}/${files.length} complete`)),
+		Promise.resolve())
+	})
 	.catch(e => {console.error(e.stack);process.exit(1)})

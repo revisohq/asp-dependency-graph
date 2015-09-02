@@ -12,6 +12,7 @@
     "end-of-stream": "^1.1.0",
     "glob": "^5.0.14",
     "neo4j": "^1.1.1",
+    "single-line-log": "^1.0.0",
     "split": "^1.0.0",
     "throat": "^2.0.2"
   },
