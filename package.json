@@ -10,8 +10,10 @@
     "babel": "^5.8.23",
     "babel-core": "^5.8.23",
     "end-of-stream": "^1.1.0",
+    "glob": "^5.0.14",
     "neo4j": "^1.1.1",
-    "split": "^1.0.0"
+    "split": "^1.0.0",
+    "throat": "^2.0.2"
   },
   "author": "",
   "license": "ISC",
