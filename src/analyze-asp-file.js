@@ -8,7 +8,7 @@ const subRegex = /^sub +([A-Z_0-9]+)/i
 const includeRegex = /^<!-- +#include +file *= *"([^"]+)"/i
 const aspClientRegex = /ASPClient *\. *([A-Z_0-9]+)/i
 
-export default function(file) {
+export default function(baseDir, file) {
 	var dirname = path.dirname(file)
 	var data = {
 		file,
@@ -20,7 +20,7 @@ export default function(file) {
 	}
 
 	var currentLine = ''
-	var inputStream = fs.createReadStream(file)
+	var inputStream = fs.createReadStream(path.join(baseDir, file))
 		.pipe(split())
 		.on('data', l => {
 			if(l.endsWith('_')) {
