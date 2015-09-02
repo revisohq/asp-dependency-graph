@@ -8,13 +8,22 @@ export default function(file) {
 		includes: [],
 		subs: [],
 		funcs: [],
-		lines: 0,
 	}
+
+	var currentLine = ''
 	var inputStream = fs.createReadStream(file)
 		.pipe(split())
 		.on('data', line => {
-			data.lines++
+			if(line.endsWith('_')) {
+				currentLine += line.substring(0, line.length - 1)
+				return
+			}
+			currentLine += line
+			console.log('line:', currentLine)
+
+			currentLine = ''
 		})
+
 	return new Promise((resolve, reject) => {
 		eos(inputStream, err => err ? reject(err) : resolve(data))
 	})
