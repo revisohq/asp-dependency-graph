@@ -6,7 +6,7 @@ import eos from 'end-of-stream'
 const funcRegex = /^function +([A-Z_0-9]+)/i
 const subRegex = /^sub +([A-Z_0-9]+)/i
 const includeRegex = /^<!-- +#include +file *= *"([^"]+)"/i
-const aspClientRegex = /^ASPClient *\. *([A-Z_0-9]+)/i
+const aspClientRegex = /ASPClient *\. *([A-Z_0-9]+)/i
 
 export default function(file) {
 	var dirname = path.dirname(file)
