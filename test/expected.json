@@ -7,5 +7,34 @@
 		"aspClientCalls": [
 			"pos1"
 		]
+	},
+	{
+		"path": "includes.asp",
+		"includes": [ "file1.asp" ],
+		"funcs": [],
+		"subs": [],
+		"aspClientCalls": []
+	},
+	{
+		"path": "functions.asp",
+		"includes": [],
+		"funcs": [ {
+			"name": "aspFunction",
+			"calls": [],
+			"aspClientCalls": [ "internal" ]
+		} ],
+		"subs": [],
+		"aspClientCalls": [ "external" ]
+	},
+	{
+		"path": "subs.asp",
+		"includes": [],
+		"funcs": [],
+		"subs": [ {
+			"name": "aspSub",
+			"calls": [],
+			"aspClientCalls": [ "internal" ]
+		} ],
+		"aspClientCalls": [ "external" ]
 	}
 ]
