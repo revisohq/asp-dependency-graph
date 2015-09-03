@@ -19,6 +19,7 @@ export default function(baseDir, file) {
 		funcs: [],
 	}
 
+	var isInASP = false
 	var currentFunction = null
 	var currentSub = null
 
@@ -26,6 +27,8 @@ export default function(baseDir, file) {
 	var inputStream = fs.createReadStream(path.join(baseDir, file))
 		.pipe(split())
 		.on('data', l => {
+			if(l.trim() == '') return
+
 			if(l.endsWith('_')) {
 				currentLine += l.substring(0, l.length - 1)
 				return
@@ -34,54 +37,115 @@ export default function(baseDir, file) {
 			var line = currentLine
 			currentLine = ''
 
-			var match
-			if(match = line.match(funcRegex)) {
-				currentFunction = {
-					name: match[1],
-					calls: [],
-					aspClientCalls: [],
-				}
-				data.funcs.push(currentFunction)
-				return
-			}
-			if(line == 'end function') {
-				currentFunction = null
-				return
+			var lines = []
+			if(/<%|%>/.test(line)) {
+				let nextStart
+				let nextStop
+				do {
+					nextStart = line.indexOf('<%')
+					nextStop = line.indexOf('%>')
+
+					// 'asp-code %> non-asp'
+					if(nextStart == -1) {
+						line = line.substring(0, nextStop)
+						lines.push(line)
+						break
+					// 'non-asp <% asp-code'
+					} else if(nextStop == -1) {
+						line = line.substring(nextStart)
+						lines.push(line)
+						break
+					// 'asp-code %> non-asp <% asp-code ...'
+					} else if(nextStop < nextStart) {
+						let l = line.substring(0, nextStop + 2)
+						lines.push(l)
+						line = line.substring(l.length)
+						continue
+					// 'non-asp <% asp-code %> non-asp ...'
+					} else {
+						let l = line.substring(nextStart, nextStop)
+						lines.push(l)
+						line = line.substring(l.length + nextStart)
+						continue
+					}
+				} while(nextStart != -1 || nextStop != -1)
+			} else {
+				lines.push(line)
 			}
 
-			if(match = line.match(subRegex)) {
-				currentSub = {
-					name: match[1],
-					calls: [],
-					aspClientCalls: [],
-				}
-				data.subs.push(currentSub)
-				return
-			}
-			if(line == 'end sub') {
-				currentSub = null
-				return
-			}
+			lines.forEach(line => {
+				if(!isInASP) {
+					var match
+					if(match = line.match(includeRegex)) {
+						data.includes.push(path.join(dirname, match[1]))
+						return
+					}
 
-			if(match = line.match(includeRegex)) {
-				data.includes.push(path.join(dirname, match[1]))
-				return
-			}
-			if(match = line.match(aspClientRegex)) {
-				let store
-				if(currentFunction != null) {
-					store = currentFunction
-				} else if(currentSub != null) {
-					store = currentSub
-				} else {
-					store = data
+					if(!line.includes('<%')) {
+						// We are not in ASP. Ignore everything!
+						return
+					}
+
+					line = line.substring(line.indexOf('<%')).trim()
+					isInASP = true
 				}
-				store.aspClientCalls.push(match[1])
-				return
-			}
+
+				if(line.includes('%>')) {
+					line = line.substring(0, line.indexOf('%>')).trim()
+					isInASP = false
+
+					if(line.length == 0) return
+				}
+
+				handleASPLine(line)
+			})
 		})
 
 	return new Promise((resolve, reject) => {
 		eos(inputStream, err => err ? reject(err) : resolve(data))
 	})
+
+	function handleASPLine(line) {
+		var match
+		if(match = line.match(funcRegex)) {
+			currentFunction = {
+				name: match[1],
+				calls: [],
+				aspClientCalls: [],
+			}
+			data.funcs.push(currentFunction)
+			return
+		}
+		if(line == 'end function') {
+			currentFunction = null
+			return
+		}
+
+		if(match = line.match(subRegex)) {
+			currentSub = {
+				name: match[1],
+				calls: [],
+				aspClientCalls: [],
+			}
+			data.subs.push(currentSub)
+			return
+		}
+		if(line == 'end sub') {
+			currentSub = null
+			return
+		}
+
+		if(match = line.match(aspClientRegex)) {
+			let store
+			if(currentFunction != null) {
+				store = currentFunction
+			} else if(currentSub != null) {
+				store = currentSub
+			} else {
+				store = data
+			}
+			store.aspClientCalls.push(match[1])
+			return
+		}
+	}
 }
