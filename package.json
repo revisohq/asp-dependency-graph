@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "babel-node index.js",
+    "analyze": "babel-node --stage=0 index.js analyze",
+    "upload": "babel-node --stage=0 index.js upload",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
