@@ -11,3 +11,6 @@ end function
 
 ASPClient.external()
 %>
+
+function moreJavascript()
+{}

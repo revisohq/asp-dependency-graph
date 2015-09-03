@@ -38,40 +38,35 @@ export default function(baseDir, file) {
 			currentLine = ''
 
 			var lines = []
-			if(/<%|%>/.test(line)) {
-				let nextStart
-				let nextStop
-				do {
-					nextStart = line.indexOf('<%')
-					nextStop = line.indexOf('%>')
+			let nextStart = line.indexOf('<%')
+			let nextStop = line.indexOf('%>')
+			while(/<%|%>/.test(line)) {
+				nextStart = line.indexOf('<%')
+				nextStop = line.indexOf('%>')
 
-					// 'asp-code %> non-asp'
-					if(nextStart == -1) {
-						line = line.substring(0, nextStop)
-						lines.push(line)
-						break
-					// 'non-asp <% asp-code'
-					} else if(nextStop == -1) {
-						line = line.substring(nextStart)
-						lines.push(line)
-						break
-					// 'asp-code %> non-asp <% asp-code ...'
-					} else if(nextStop < nextStart) {
-						let l = line.substring(0, nextStop + 2)
-						lines.push(l)
-						line = line.substring(l.length)
-						continue
-					// 'non-asp <% asp-code %> non-asp ...'
-					} else {
-						let l = line.substring(nextStart, nextStop)
-						lines.push(l)
-						line = line.substring(l.length + nextStart)
-						continue
-					}
-				} while(nextStart != -1 || nextStop != -1)
-			} else {
-				lines.push(line)
+				// 'asp-code %> non-asp'
+				if(nextStart == -1) {
+					line = line.substring(0, nextStop + 2)
+					break
+				// 'non-asp <% asp-code'
+				} else if(nextStop == -1) {
+					line = line.substring(nextStart)
+					break
+				// 'asp-code %> non-asp <% asp-code ...'
+				} else if(nextStop < nextStart) {
+					let l = line.substring(0, nextStop + 2)
+					lines.push(l)
+					line = line.substring(l.length)
+					continue
+				// 'non-asp <% asp-code %> non-asp ...'
+				} else {
+					let l = line.substring(nextStart, nextStop)
+					lines.push(l)
+					line = line.substring(l.length + nextStart)
+					continue
+				}
 			}
+			lines.push(line)
 
 			lines.forEach(line => {
 				if(!isInASP) {
