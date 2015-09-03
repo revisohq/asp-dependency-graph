@@ -52,12 +52,20 @@ export function createFile(file) {
 	let aspClientFuncs = file.aspClientCalls.map(fn => `
 		CREATE (file)-[:CALLS]->(ac${fn})
 	`.trim())
+	let includeMatches = file.includes.filter((v,i,a)=>a.indexOf(v)==i).map(path => `
+		MERGE (\`file${path}\`:File { path: '${path}' })
+	`)
+	let includeCreates = file.includes.map(path => `
+		CREATE (file)-[:INCLUDES]->(\`file${path}\`)
+	`.trim())
 	return query(`
 		MERGE (aspClient:ASPClient)
 		${aspClientCallsCreates.join('\n')}
-		CREATE (file:File { path: {path} })
+		MERGE (file:File { path: '${file.path}' })
+		${includeMatches.join('\n')}
+		${includeCreates.join('\n')}
 		${funcCreates.join('\n')}
 		${subCreates.join('\n')}
 		${aspClientFuncs.join('\n')}
-	`, { path: file.path })
+	`)
 }
