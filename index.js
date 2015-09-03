@@ -1,27 +1,55 @@
-import glob from 'glob'
-import throat from 'throat'
+import yargs from 'yargs'
+import fs from 'fs'
 import { stdout as log } from 'single-line-log'
-import analyzer from './src/analyze-asp-file'
-import * as neo from './src/neo'
+
+import { analyze, upload } from './src/commands'
 
 var baseDir = process.argv[2]
 
-neo.init('http://localhost:7474')
+yargs
+	.usage('$0 <command>')
+	.command('analyze', 'Read through ASP files for data', analyzeCommand)
+	.command('upload', 'Loads JSON file into neo4j', uploadCommand)
+	.help('help')
+	.required(1, '')
+	.argv
 
-var p = Promise.all([
-	new Promise((resolve, reject) => {
-		glob('**/*.asp', { cwd: baseDir }, (err, files) => err ? reject(err) : resolve(files))
-	}),
-	neo.deleteAll(),
-]).then(r => r[0])
+function analyzeCommand(yargs) {
+	var args = yargs
+		.usage('$0 analyze <root-folder-for-asp>')
+		.required(2, 'The root folder is required. The code will recurse through the folder to find *.asp files')
+		.help('help')
+		.argv
 
-p.then(files => files.map(throat(1, file => analyzer(baseDir, file))))
-	.then(a => Promise.all(a))
-	.then(files => {
-		var complete = 0
-		return files.reduce((p, file) => p
-			.then(() => neo.createFile(file))
-			.then(()=>log(`${++complete}/${files.length} complete`)),
-		Promise.resolve())
+	var baseDir = args._[1]
+	var result = analyze(baseDir)
+		.then(data => JSON.stringify(data, null, '  '))
+	hookUpOutput(result)
+}
+
+function uploadCommand(yargs) {
+	var args = yargs
+		.usage('$0 upload <json-file>')
+		.required(2, 'The json-file is required')
+		.help('help')
+		.argv
+
+	var jsonPath = args._[1]
+
+	var result = new Promise((resolve, reject) => {
+		fs.readFile(jsonPath, 'utf8', (err, data) => err ? reject(err) : resolve(data))
 	})
-	.catch(e => {console.error(e.stack);process.exit(1)})
+		.then(JSON.parse)
+		.then(data => upload(data, message => log(message + '\n')))
+
+	hookUpOutput(result)
+}
+
+function hookUpOutput(promise) {
+	promise.then(result => {
+		if(result != null) console.log(result)
+	}, e => {
+		console.error(e.stack)
+		process.exit(1)
+	})
+}
