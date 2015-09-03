@@ -1,0 +1,11 @@
+[
+	{
+		"path": "file-level-asp-client-calls.asp",
+		"includes": [],
+		"funcs": [],
+		"subs": [],
+		"aspClientCalls": [
+			"pos1"
+		]
+	}
+]

@@ -5,7 +5,7 @@
   "scripts": {
     "analyze": "babel-node --stage=0 index.js analyze",
     "upload": "babel-node --stage=0 index.js upload",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "dependencies": {
     "babel": "^5.8.23",
@@ -18,6 +18,10 @@
     "split": "^1.0.0",
     "throat": "^2.0.2",
     "yargs": "^3.23.0"
+  },
+  "devDependencies": {
+    "chai": "^3.2.0",
+    "mocha": "^2.3.0"
   },
   "author": "",
   "license": "ISC",

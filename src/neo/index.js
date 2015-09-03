@@ -59,5 +59,5 @@ export function createFile(file) {
 		${funcCreates.join('\n')}
 		${subCreates.join('\n')}
 		${aspClientFuncs.join('\n')}
-	`, { path: file.file })
+	`, { path: file.path })
 }

@@ -11,7 +11,7 @@ const aspClientRegex = /ASPClient *\. *([A-Z_0-9]+)/i
 export default function(baseDir, file) {
 	var dirname = path.dirname(file)
 	var data = {
-		file,
+		path: file,
 		classes: [],
 		aspClientCalls: [],
 		includes: [],
