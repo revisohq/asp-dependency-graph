@@ -19,6 +19,9 @@ export default function(baseDir, file) {
 		funcs: [],
 	}
 
+	var currentFunction = null
+	var currentSub = null
+
 	var currentLine = ''
 	var inputStream = fs.createReadStream(path.join(baseDir, file))
 		.pipe(split())
@@ -33,19 +36,47 @@ export default function(baseDir, file) {
 
 			var match
 			if(match = line.match(funcRegex)) {
-				data.funcs.push(match[1])
+				currentFunction = {
+					name: match[1],
+					calls: [],
+					aspClientCalls: [],
+				}
+				data.funcs.push(currentFunction)
 				return
 			}
+			if(line == 'end function') {
+				currentFunction = null
+				return
+			}
+
 			if(match = line.match(subRegex)) {
-				data.subs.push(match[1])
+				currentSub = {
+					name: match[1],
+					calls: [],
+					aspClientCalls: [],
+				}
+				data.subs.push(currentSub)
 				return
 			}
+			if(line == 'end sub') {
+				currentSub = null
+				return
+			}
+
 			if(match = line.match(includeRegex)) {
 				data.includes.push(path.join(dirname, match[1]))
 				return
 			}
 			if(match = line.match(aspClientRegex)) {
-				data.aspClientCalls.push(match[1])
+				let store
+				if(currentFunction != null) {
+					store = currentFunction
+				} else if(currentSub != null) {
+					store = currentSub
+				} else {
+					store = data
+				}
+				store.aspClientCalls.push(match[1])
 				return
 			}
 		})
