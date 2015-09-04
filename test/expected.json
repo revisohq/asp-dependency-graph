@@ -50,9 +50,18 @@
 			"name": "inlineWithParans",
 			"calls": [],
 			"aspClientCalls": []
+		}, {
+			"name": "abc",
+			"calls": [],
+			"aspClientCalls": []
+		}, {
+			"name": "abcdef",
+			"calls": [],
+			"aspClientCalls": []
 		} ],
 		"subs": [],
-		"aspClientCalls": [ "external" ]
+		"aspClientCalls": [ "external" ],
+		"calls": [ "abc", "someFunc", "funcWithoutParans1", "funcWithParans1", "abcdef", "abc" ]
 	},
 	{
 		"path": "subs.asp",

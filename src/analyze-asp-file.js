@@ -8,10 +8,11 @@ const subRegex = /^sub +([A-Z_0-9]+) *\(([^)]*)\)/i
 const includeRegex = /^<!-- +#include +file *= *"([^"]+)"/i
 const aspClientRegex = /ASPClient *\. *([A-Z_0-9]+)/i
 const dim = /^dim +([A-Z_0-9]+)/i
+const funcDelims = '[, -+*/:()=]'
 
 export default function(baseDir, file, allFunctions = []) {
 	allFunctions.forEach(f => {
-		f.regex = new RegExp(f.name, 'i')
+		f.regex = new RegExp(`(^|${funcDelims})${f.name}(${funcDelims}|$)`, 'i')
 	})
 	var dirname = path.dirname(file)
 	var data = {

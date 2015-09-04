@@ -30,6 +30,15 @@ end function
 function inlineWithParans()
 end function
 
+function abc()
+end function
+function abcdef()
+end function
+
+abc
+abcdef someFunc(),funcWithoutParans1() , funcWithParans1()
+abc
+
 ASPClient.external()
 %>
 
