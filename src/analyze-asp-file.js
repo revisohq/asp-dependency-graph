@@ -3,12 +3,16 @@ import path from 'path'
 import split from 'split'
 import eos from 'end-of-stream'
 
-const funcRegex = /^function +([A-Z_0-9]+)/i
-const subRegex = /^sub +([A-Z_0-9]+)/i
+const funcRegex = /^function +([A-Z_0-9]+) *\(([^)]*)/i
+const subRegex = /^sub +([A-Z_0-9]+) *\(([^)]*)\)/i
 const includeRegex = /^<!-- +#include +file *= *"([^"]+)"/i
 const aspClientRegex = /ASPClient *\. *([A-Z_0-9]+)/i
+const dim = /^dim +([A-Z_0-9]+)/i
 
-export default function(baseDir, file) {
+export default function(baseDir, file, allFunctions = []) {
+	allFunctions.forEach(f => {
+		f.regex = new RegExp(f.name, 'i')
+	})
 	var dirname = path.dirname(file)
 	var data = {
 		path: file,
@@ -17,6 +21,8 @@ export default function(baseDir, file) {
 		includes: [],
 		subs: [],
 		funcs: [],
+		calls: [],
+		dims: [],
 	}
 
 	var isInASP = false
@@ -88,8 +94,6 @@ export default function(baseDir, file) {
 				if(line.includes('%>')) {
 					line = line.substring(0, line.indexOf('%>')).trim()
 					isInASP = false
-
-					if(line.length == 0) return
 				}
 
 				handleASPLine(line)
@@ -103,11 +107,7 @@ export default function(baseDir, file) {
 	function handleASPLine(line) {
 		var match
 		if(match = line.match(funcRegex)) {
-			currentFunction = {
-				name: match[1],
-				calls: [],
-				aspClientCalls: [],
-			}
+			currentFunction = funcFromMatch(match)
 			data.funcs.push(currentFunction)
 			return
 		}
@@ -117,11 +117,7 @@ export default function(baseDir, file) {
 		}
 
 		if(match = line.match(subRegex)) {
-			currentSub = {
-				name: match[1],
-				calls: [],
-				aspClientCalls: [],
-			}
+			currentSub = funcFromMatch(match)
 			data.subs.push(currentSub)
 			return
 		}
@@ -129,18 +125,44 @@ export default function(baseDir, file) {
 			currentSub = null
 			return
 		}
+		if(match = line.match(dim)) {
+			let store = getCurrentStore()
+			store.dims.push(match[1])
+			return
+		}
 
 		if(match = line.match(aspClientRegex)) {
-			let store
-			if(currentFunction != null) {
-				store = currentFunction
-			} else if(currentSub != null) {
-				store = currentSub
-			} else {
-				store = data
-			}
+			let store = getCurrentStore()
 			store.aspClientCalls.push(match[1])
 			return
+		}
+
+		allFunctions.forEach(wrap => {
+			if(wrap.regex.test(line)) {
+				let store = getCurrentStore()
+				let allDims = store.name ? allFunctions.find(f => f.name == store.name).dims : []
+				if(allDims.indexOf(wrap.name) != -1) return
+				store.calls.push(wrap.name)
+			}
+		})
+	}
+
+	function getCurrentStore() {
+		if(currentFunction != null) {
+			return currentFunction
+		} else if(currentSub != null) {
+			return currentSub
+		} else {
+			return data
+		}
+	}
+
+	function funcFromMatch(match) {
+		return {
+			name: match[1],
+			calls: [],
+			aspClientCalls: [],
+			dims: match[2].split(',').map(s => s.trim()).filter(s => s.length > 0),
 		}
 	}
 }

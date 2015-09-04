@@ -31,6 +31,10 @@ describe('analyze.js', function() {
 				expect(this.actualFile.aspClientCalls).to.deep.equal(file.aspClientCalls)
 			})
 
+			it('should find all asp-calls', function() {
+				expect(this.actualFile.calls).to.deep.equal(file.calls || [])
+			})
+
 			describe('and looking for functions', function() {
 				it('should not find extra functions', function() {
 					var extra = this.actualFile.funcs.filter(f => file.funcs.find(f1 => f.name == f1.name) == null)

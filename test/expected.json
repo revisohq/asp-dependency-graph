@@ -22,6 +22,34 @@
 			"name": "aspFunction",
 			"calls": [],
 			"aspClientCalls": [ "internal" ]
+		}, {
+			"name": "someFunc",
+			"calls": [],
+			"aspClientCalls": []
+		}, {
+			"name": "funcWithoutParans1",
+			"calls": [],
+			"aspClientCalls": []
+		}, {
+			"name": "funcWithoutParans2",
+			"calls": [],
+			"aspClientCalls": []
+		}, {
+			"name": "funcWithParans1",
+			"calls": [],
+			"aspClientCalls": []
+		}, {
+			"name": "funcWithParans2",
+			"calls": [],
+			"aspClientCalls": []
+		}, {
+			"name": "inlineWithoutParans",
+			"calls": [],
+			"aspClientCalls": []
+		}, {
+			"name": "inlineWithParans",
+			"calls": [],
+			"aspClientCalls": []
 		} ],
 		"subs": [],
 		"aspClientCalls": [ "external" ]
@@ -48,6 +76,33 @@
 		"path": "nested/func.asp",
 		"includes": [],
 		"funcs": [],
+		"subs": [],
+		"aspClientCalls": []
+	},
+	{
+		"path": "page-calls-functions.asp",
+		"includes": [ "functions.asp" ],
+		"funcs": [],
+		"subs": [],
+		"aspClientCalls": [],
+		"calls": [
+			"someFunc", "funcWithoutParans1", "funcWithParans1",
+			"funcWithoutParans2", "funcWithParans2", "funcWithoutParans1",
+			"inlineWithoutParans", "inlineWithParans"
+		]
+	},
+	{
+		"path": "func-calls-functions.asp",
+		"includes": [ "functions.asp" ],
+		"funcs": [ {
+			"name": "test",
+			"aspClientCalls": [],
+			"calls": [
+				"someFunc", "funcWithParans1",
+				"funcWithoutParans2", "funcWithParans2",
+				"inlineWithParans"
+			]
+		} ],
 		"subs": [],
 		"aspClientCalls": []
 	}
