@@ -36,5 +36,19 @@
 			"aspClientCalls": [ "internal" ]
 		} ],
 		"aspClientCalls": [ "external" ]
+	},
+	{
+		"path": "nested/includes.asp",
+		"includes": [ "functions.asp", "nested/func.asp" ],
+		"funcs": [],
+		"subs": [],
+		"aspClientCalls": []
+	},
+	{
+		"path": "nested/func.asp",
+		"includes": [],
+		"funcs": [],
+		"subs": [],
+		"aspClientCalls": []
 	}
 ]
