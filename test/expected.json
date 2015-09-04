@@ -105,5 +105,20 @@
 		} ],
 		"subs": [],
 		"aspClientCalls": []
+	},
+	{
+		"path": "sub-calls-functions.asp",
+		"includes": [ "functions.asp" ],
+		"subs": [ {
+			"name": "test_sub",
+			"aspClientCalls": [],
+			"calls": [
+				"someFunc", "funcWithParans1",
+				"funcWithoutParans2", "funcWithParans2",
+				"inlineWithParans"
+			]
+		} ],
+		"funcs": [],
+		"aspClientCalls": []
 	}
 ]
