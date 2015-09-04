@@ -129,5 +129,17 @@
 		} ],
 		"funcs": [],
 		"aspClientCalls": []
+	},
+	{
+		"path": "multi-statement.asp",
+		"includes": [ "functions.asp" ],
+		"subs": [],
+		"funcs": [ {
+			"name": "test_oneline",
+			"calls": [ "someFunc" ],
+			"aspClientCalls": [ "huhej" ]
+		} ],
+		"aspClientCalls": [ "bum" ],
+		"calls": [ "test_oneline" ]
 	}
 ]

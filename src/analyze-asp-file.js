@@ -1,4 +1,5 @@
 import fs from 'fs'
+import flatmap from 'flatmap'
 import path from 'path'
 import split from 'split'
 import eos from 'end-of-stream'
@@ -75,7 +76,7 @@ export default function(baseDir, file, allFunctions = []) {
 			}
 			lines.push(line)
 
-			lines.forEach(line => {
+			flatmap(lines, line => line.split(':').map(l => l.trim())).forEach(line => {
 				if(!isInASP) {
 					var match
 					if(match = line.match(includeRegex)) {
@@ -141,8 +142,14 @@ export default function(baseDir, file, allFunctions = []) {
 		allFunctions.forEach(wrap => {
 			if(wrap.regex.test(line)) {
 				let store = getCurrentStore()
-				let allDims = store.name ? allFunctions.find(f => f.name == store.name).dims : []
-				if(allDims.indexOf(wrap.name) != -1) return
+				if(store.name) {
+					// We are returning a value
+					if(store.name == wrap.name) return
+
+					// We are referencing a local var instead of a function
+					let allDims = allFunctions.find(f => f.name == store.name).dims
+					if(allDims.indexOf(wrap.name) != -1) return
+				}
 				store.calls.push(wrap.name)
 			}
 		})
