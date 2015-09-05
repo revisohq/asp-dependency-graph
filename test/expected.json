@@ -141,5 +141,17 @@
 		} ],
 		"aspClientCalls": [ "bum" ],
 		"calls": [ "test_oneline" ]
+	},
+	{
+		"path": "not-actually-calls.asp",
+		"includes": [ "functions.asp" ],
+		"subs": [],
+		"funcs": [ {
+			"name": "func_after_comment",
+			"calls": [],
+			"aspClientCalls": []
+		} ],
+		"aspClientCalls": [],
+		"calls": []
 	}
 ]

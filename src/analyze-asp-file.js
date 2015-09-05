@@ -8,6 +8,8 @@ const funcRegex = /^function +([A-Z_0-9]+) *\(([^)]*)/i
 const subRegex = /^sub +([A-Z_0-9]+) *\(([^)]*)\)/i
 const includeRegex = /^<!-- +#include +file *= *"([^"]+)"/i
 const aspClientRegex = /ASPClient *\. *([A-Z_0-9]+)/i
+const commentRegex = /(\/\/|').*$/
+const stringRegex = /".*"/
 const dim = /^dim +([A-Z_0-9]+)/i
 const funcDelims = '[, -+*/:()=]'
 
@@ -36,6 +38,8 @@ export default function(baseDir, file, allFunctions = []) {
 		.pipe(split())
 		.on('data', l => {
 			if(l.trim() == '') return
+
+			l = l.replace(commentRegex, '')
 
 			if(l.endsWith('_')) {
 				currentLine += l.substring(0, l.length - 1)
@@ -97,6 +101,8 @@ export default function(baseDir, file, allFunctions = []) {
 					line = line.substring(0, line.indexOf('%>')).trim()
 					isInASP = false
 				}
+
+				line = line.replace(stringRegex, '')
 
 				handleASPLine(line)
 			})
