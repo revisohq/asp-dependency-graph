@@ -115,7 +115,7 @@ export default function(baseDir, file, allFunctions = []) {
 			data.funcs.push(currentFunction)
 			return
 		}
-		if(line == 'end function') {
+		if(line.toLowerCase() == 'end function') {
 			currentFunction = null
 			return
 		}
@@ -126,7 +126,7 @@ export default function(baseDir, file, allFunctions = []) {
 			data.subs.push(currentSub)
 			return
 		}
-		if(line == 'end sub') {
+		if(line.toLowerCase() == 'end sub') {
 			currentSub = null
 			return
 		}

@@ -8,4 +8,11 @@
 
 	function getShowDocumentLink(invoiceType, hasGenNr)
 	end function
+
+function BogfoerFakturaPostering ()
+End function
+
+function HarAdminLogo (AftaleNr)
+end function
+
 %>

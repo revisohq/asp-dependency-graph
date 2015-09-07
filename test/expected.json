@@ -173,6 +173,14 @@
 			"name": "getShowDocumentLink",
 			"calls": [],
 			"aspClientCalls": []
+		}, {
+			"name": "BogfoerFakturaPostering",
+			"calls": [],
+			"aspClientCalls": []
+		}, {
+			"name": "HarAdminLogo",
+			"calls": [],
+			"aspClientCalls": []
 		} ],
 		"subs": [],
 		"aspClientCalls": [],
