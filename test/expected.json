@@ -153,5 +153,13 @@
 		} ],
 		"aspClientCalls": [],
 		"calls": []
+	},
+	{
+		"path": "strings.asp",
+		"includes": [ "functions.asp" ],
+		"subs": [],
+		"funcs": [],
+		"aspClientCalls": [],
+		"calls": [ "funcWithParans1", "funcWithParans2", "someFunc" ]
 	}
 ]
