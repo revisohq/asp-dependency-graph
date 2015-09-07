@@ -6,7 +6,7 @@ import eos from 'end-of-stream'
 
 const funcRegex = /^function +([A-Z_0-9]+) *\(([^)]*)/i
 const subRegex = /^sub +([A-Z_0-9]+) *\(([^)]*)\)/i
-const includeRegex = /^<!-- +#include +file *= *"([^"]+)"/i
+const includeRegex = /<!-- +#include +file *= *"([^"]+)"/i
 const aspClientRegex = /ASPClient *\. *([A-Z_0-9]+)/i
 const commentRegex = /(\/\/|').*$/
 const stringRegex = /"([^"]||"")*"/
@@ -46,23 +46,25 @@ export default function(baseDir, file, allFunctions = []) {
 
 				// 'asp-code %> non-asp'
 				if(nextStart == -1) {
-					line = line.substring(0, nextStop + 2)
+					lines.push(line.substring(0, nextStop))
+					line = '%>'
 					break
 				// 'non-asp <% asp-code'
 				} else if(nextStop == -1) {
-					line = line.substring(nextStart)
+					lines.push('<%')
+					line = line.substring(nextStart + 2)
 					break
 				// 'asp-code %> non-asp <% asp-code ...'
 				} else if(nextStop < nextStart) {
-					let l = line.substring(0, nextStop + 2)
-					lines.push(l)
-					line = line.substring(l.length)
+					let l = line.substring(0, nextStop)
+					lines.push(l, '%>')
+					line = line.substring(l.length + 2)
 					continue
 				// 'non-asp <% asp-code %> non-asp ...'
 				} else {
-					let l = line.substring(nextStart, nextStop)
-					lines.push(l)
-					line = line.substring(l.length + nextStart)
+					let l = line.substring(nextStart + 2, nextStop)
+					lines.push('<%', l, '%>')
+					line = line.substring(l.length + 4 + nextStart)
 					continue
 				}
 			}
@@ -73,31 +75,24 @@ export default function(baseDir, file, allFunctions = []) {
 		eos(inputStream, err => err ? reject(err) : resolve())
 	})
 		.then(()=>{
-			flatmap(lines, line => line.split(':').map(l => l.trim())).forEach(line => {
+			flatmap(lines.filter(line => {
+				var match
+				if(match = line.match(includeRegex)) {
+					data.includes.push(path.join(dirname, match[1]))
+				}
+				if(line == '<%') {
+					isInASP = true
+					return false
+				}
+				if(line == '%>') {
+					isInASP = false
+					return false
+				}
+				return isInASP
+			}), line => line.replace(stringRegex, '').split(':').map(l => l.trim())).forEach(line => {
 				if(line == '') return
 
-				if(!isInASP) {
-					var match
-					if(match = line.match(includeRegex)) {
-						data.includes.push(path.join(dirname, match[1]))
-						return
-					}
-
-					if(!line.includes('<%')) {
-						// We are not in ASP. Ignore everything!
-						return
-					}
-
-					line = line.substring(line.indexOf('<%')).trim()
-					isInASP = true
-				}
-
-				if(line.includes('%>')) {
-					line = line.substring(0, line.indexOf('%>')).trim()
-					isInASP = false
-				}
-
-				line = line.replace(stringRegex, '').replace(commentRegex, '')
+				line = line.replace(commentRegex, '')
 
 				handleASPLine(line)
 			})

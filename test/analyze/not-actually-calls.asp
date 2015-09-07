@@ -13,6 +13,8 @@ dim b ' _
 function func_after_comment()
 end function
 
+"not calling funcWithoutParans2 because it is in string with statement sep:"
+
 ' some comment before exiting asp %>
 
 not calling funcWithParans2 because it is outside asp
