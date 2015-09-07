@@ -89,7 +89,7 @@ export default function(baseDir, file, allFunctions = []) {
 					return false
 				}
 				return isInASP
-			}), line => line.replace(stringRegex, '').split(':').map(l => l.trim())).forEach(line => {
+			}), line => line.replace(stringRegex, '""').split(':').map(l => l.trim())).forEach(line => {
 				if(line == '') return
 
 				line = line.replace(commentRegex, '')
@@ -110,6 +110,7 @@ export default function(baseDir, file, allFunctions = []) {
 
 		var match
 		if(match = line.match(funcRegex)) {
+			assertNestedFunction(match)
 			currentFunction = funcFromMatch(match)
 			data.funcs.push(currentFunction)
 			return
@@ -120,6 +121,7 @@ export default function(baseDir, file, allFunctions = []) {
 		}
 
 		if(match = line.match(subRegex)) {
+			assertNestedFunction(match)
 			currentSub = funcFromMatch(match)
 			data.subs.push(currentSub)
 			return
@@ -172,6 +174,13 @@ export default function(baseDir, file, allFunctions = []) {
 			calls: [],
 			aspClientCalls: [],
 			dims: match[2].split(',').map(s => s.trim()).filter(s => s.length > 0),
+		}
+	}
+
+	function assertNestedFunction(match) {
+		if(currentFunction != null || currentSub != null) {
+			var current = currentFunction != null ? currentFunction.name : currentSub.name
+			throw new Error(`Found nested function definition in ${file}: ${match[1]}() was nested inside ${current}()`)
 		}
 	}
 }

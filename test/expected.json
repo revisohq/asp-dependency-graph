@@ -161,5 +161,21 @@
 		"funcs": [],
 		"aspClientCalls": [],
 		"calls": [ "funcWithParans1", "funcWithParans2", "someFunc" ]
+	},
+	{
+		"path": "real-world-curve-balls.asp",
+		"includes": [],
+		"funcs": [ {
+			"name": "getLink",
+			"calls": [],
+			"aspClientCalls": []
+		}, {
+			"name": "getShowDocumentLink",
+			"calls": [],
+			"aspClientCalls": []
+		} ],
+		"subs": [],
+		"aspClientCalls": [],
+		"calls": []
 	}
 ]
