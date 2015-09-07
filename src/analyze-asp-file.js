@@ -4,18 +4,18 @@ import path from 'path'
 import split from 'split'
 import eos from 'end-of-stream'
 
-const funcRegex = /^function +([A-Z_0-9]+) *\(([^)]*)/i
-const subRegex = /^sub +([A-Z_0-9]+) *\(([^)]*)\)/i
-const includeRegex = /<!-- +#include +file *= *"([^"]+)"/i
-const aspClientRegex = /ASPClient *\. *([A-Z_0-9]+)/i
+const funcRegex = /^function +([a-z_0-9]+) *\(([^)]*)/
+const subRegex = /^sub +([a-z_0-9]+) *\(([^)]*)\)/
+const includeRegex = /<!-- +#include +file *= *"([^"]+)"/
+const aspClientRegex = /aspclient *\. *([a-z_0-9]+)/
 const commentRegex = /(\/\/|').*$/
 const stringRegex = /"([^"]||"")*"/
-const dim = /^dim +([A-Z_0-9]+)/i
+const dim = /^dim +([a-z_0-9]+)/
 const funcDelims = '[, -+*/:()=]'
 
 export default function(baseDir, file, allFunctions = []) {
 	allFunctions.forEach(f => {
-		f.regex = new RegExp(`(^|${funcDelims})${f.name}(${funcDelims}|$)`, 'i')
+		f.regex = new RegExp(`(^|${funcDelims})${f.name}(${funcDelims}|$)`)
 	})
 	var dirname = path.dirname(file)
 	var data = {
@@ -37,7 +37,8 @@ export default function(baseDir, file, allFunctions = []) {
 	var currentLine = ''
 	var inputStream = fs.createReadStream(path.join(baseDir, file))
 		.pipe(split())
-		.on('data', line => {
+		.on('data', l => {
+			let line = l.toLocaleLowerCase()
 			let nextStart = line.indexOf('<%')
 			let nextStop = line.indexOf('%>')
 			while(/<%|%>/.test(line)) {
@@ -115,7 +116,7 @@ export default function(baseDir, file, allFunctions = []) {
 			data.funcs.push(currentFunction)
 			return
 		}
-		if(line.toLowerCase() == 'end function') {
+		if(line == 'end function') {
 			currentFunction = null
 			return
 		}
@@ -126,7 +127,7 @@ export default function(baseDir, file, allFunctions = []) {
 			data.subs.push(currentSub)
 			return
 		}
-		if(line.toLowerCase() == 'end sub') {
+		if(line == 'end sub') {
 			currentSub = null
 			return
 		}

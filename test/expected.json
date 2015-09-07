@@ -19,35 +19,35 @@
 		"path": "functions.asp",
 		"includes": [],
 		"funcs": [ {
-			"name": "aspFunction",
+			"name": "aspfunction",
 			"calls": [],
 			"aspClientCalls": [ "internal" ]
 		}, {
-			"name": "someFunc",
+			"name": "somefunc",
 			"calls": [],
 			"aspClientCalls": []
 		}, {
-			"name": "funcWithoutParans1",
+			"name": "funcwithoutparans1",
 			"calls": [],
 			"aspClientCalls": []
 		}, {
-			"name": "funcWithoutParans2",
+			"name": "funcwithoutparans2",
 			"calls": [],
 			"aspClientCalls": []
 		}, {
-			"name": "funcWithParans1",
+			"name": "funcwithparans1",
 			"calls": [],
 			"aspClientCalls": []
 		}, {
-			"name": "funcWithParans2",
+			"name": "funcwithparans2",
 			"calls": [],
 			"aspClientCalls": []
 		}, {
-			"name": "inlineWithoutParans",
+			"name": "inlinewithoutparans",
 			"calls": [],
 			"aspClientCalls": []
 		}, {
-			"name": "inlineWithParans",
+			"name": "inlinewithparans",
 			"calls": [],
 			"aspClientCalls": []
 		}, {
@@ -61,14 +61,14 @@
 		} ],
 		"subs": [],
 		"aspClientCalls": [ "external" ],
-		"calls": [ "abc", "someFunc", "funcWithoutParans1", "funcWithParans1", "abcdef", "abc" ]
+		"calls": [ "abc", "somefunc", "funcwithoutparans1", "funcwithparans1", "abcdef", "abc" ]
 	},
 	{
 		"path": "subs.asp",
 		"includes": [],
 		"funcs": [],
 		"subs": [ {
-			"name": "aspSub",
+			"name": "aspsub",
 			"calls": [],
 			"aspClientCalls": [ "internal" ]
 		} ],
@@ -95,9 +95,9 @@
 		"subs": [],
 		"aspClientCalls": [],
 		"calls": [
-			"someFunc", "funcWithoutParans1", "funcWithParans1",
-			"funcWithoutParans2", "funcWithParans2", "funcWithoutParans1",
-			"inlineWithoutParans", "inlineWithParans"
+			"somefunc", "funcwithoutparans1", "funcwithparans1",
+			"funcwithoutparans2", "funcwithparans2", "funcwithoutparans1",
+			"inlinewithoutparans", "inlinewithparans"
 		]
 	},
 	{
@@ -107,9 +107,9 @@
 			"name": "test",
 			"aspClientCalls": [],
 			"calls": [
-				"someFunc", "funcWithParans1",
-				"funcWithoutParans2", "funcWithParans2",
-				"inlineWithParans"
+				"somefunc", "funcwithparans1",
+				"funcwithoutparans2", "funcwithparans2",
+				"inlinewithparans"
 			]
 		} ],
 		"subs": [],
@@ -122,9 +122,9 @@
 			"name": "test_sub",
 			"aspClientCalls": [],
 			"calls": [
-				"someFunc", "funcWithParans1",
-				"funcWithoutParans2", "funcWithParans2",
-				"inlineWithParans"
+				"somefunc", "funcwithparans1",
+				"funcwithoutparans2", "funcwithparans2",
+				"inlinewithparans"
 			]
 		} ],
 		"funcs": [],
@@ -136,7 +136,7 @@
 		"subs": [],
 		"funcs": [ {
 			"name": "test_oneline",
-			"calls": [ "someFunc" ],
+			"calls": [ "somefunc" ],
 			"aspClientCalls": [ "huhej" ]
 		} ],
 		"aspClientCalls": [ "bum" ],
@@ -160,25 +160,25 @@
 		"subs": [],
 		"funcs": [],
 		"aspClientCalls": [],
-		"calls": [ "funcWithParans1", "funcWithParans2", "someFunc" ]
+		"calls": [ "funcwithparans1", "funcwithparans2", "somefunc" ]
 	},
 	{
 		"path": "real-world-curve-balls.asp",
 		"includes": [],
 		"funcs": [ {
-			"name": "getLink",
+			"name": "getlink",
 			"calls": [],
 			"aspClientCalls": []
 		}, {
-			"name": "getShowDocumentLink",
+			"name": "getshowdocumentlink",
 			"calls": [],
 			"aspClientCalls": []
 		}, {
-			"name": "BogfoerFakturaPostering",
+			"name": "bogfoerfakturapostering",
 			"calls": [],
 			"aspClientCalls": []
 		}, {
-			"name": "HarAdminLogo",
+			"name": "haradminlogo",
 			"calls": [],
 			"aspClientCalls": []
 		} ],
