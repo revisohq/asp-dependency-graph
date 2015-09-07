@@ -10,7 +10,14 @@
 	},
 	{
 		"path": "includes.asp",
-		"includes": [ "file1.asp" ],
+		"includes": [ "file1.asp", "camelcasedfile.asp" ],
+		"funcs": [],
+		"subs": [],
+		"aspClientCalls": []
+	},
+	{
+		"path": "camelcasedfile.asp",
+		"includes": [],
 		"funcs": [],
 		"subs": [],
 		"aspClientCalls": []

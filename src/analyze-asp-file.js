@@ -19,7 +19,7 @@ export default function(baseDir, file, allFunctions = []) {
 	})
 	var dirname = path.dirname(file)
 	var data = {
-		path: file,
+		path: file.toLocaleLowerCase(),
 		classes: [],
 		aspClientCalls: [],
 		includes: [],
