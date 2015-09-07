@@ -13,4 +13,6 @@ dim b ' _
 function func_after_comment()
 end function
 
-%>
+' some comment before exiting asp %>
+
+not calling funcWithParans2 because it is outside asp

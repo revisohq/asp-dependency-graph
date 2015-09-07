@@ -33,23 +33,11 @@ export default function(baseDir, file, allFunctions = []) {
 	var currentFunction = null
 	var currentSub = null
 
+	var lines = []
 	var currentLine = ''
 	var inputStream = fs.createReadStream(path.join(baseDir, file))
 		.pipe(split())
-		.on('data', l => {
-			if(l.trim() == '') return
-
-			l = l.replace(commentRegex, '')
-
-			if(l.endsWith('_')) {
-				currentLine += l.substring(0, l.length - 1)
-				return
-			}
-			currentLine = (currentLine + l).trim()
-			var line = currentLine
-			currentLine = ''
-
-			var lines = []
+		.on('data', line => {
 			let nextStart = line.indexOf('<%')
 			let nextStop = line.indexOf('%>')
 			while(/<%|%>/.test(line)) {
@@ -79,8 +67,15 @@ export default function(baseDir, file, allFunctions = []) {
 				}
 			}
 			lines.push(line)
+		})
 
+	return new Promise((resolve, reject) => {
+		eos(inputStream, err => err ? reject(err) : resolve())
+	})
+		.then(()=>{
 			flatmap(lines, line => line.split(':').map(l => l.trim())).forEach(line => {
+				if(line == '') return
+
 				if(!isInASP) {
 					var match
 					if(match = line.match(includeRegex)) {
@@ -102,17 +97,22 @@ export default function(baseDir, file, allFunctions = []) {
 					isInASP = false
 				}
 
-				line = line.replace(stringRegex, '')
+				line = line.replace(stringRegex, '').replace(commentRegex, '')
 
 				handleASPLine(line)
 			})
+			return data
 		})
 
-	return new Promise((resolve, reject) => {
-		eos(inputStream, err => err ? reject(err) : resolve(data))
-	})
+	function handleASPLine(l) {
+		currentLine = (currentLine + l.trim())
+		var line = currentLine
+		if(line.endsWith('_')) {
+			currentLine += l.substring(0, l.length - 1)
+			return
+		}
+		currentLine = ''
 
-	function handleASPLine(line) {
 		var match
 		if(match = line.match(funcRegex)) {
 			currentFunction = funcFromMatch(match)
