@@ -8,12 +8,17 @@ export default function(files, log) {
 
 	promise.then(()=>{complete = 0})
 	promise = files.reduce(addFile, promise)
-
-	promise.then(()=>{
+	promise = promise.then(neo.createIncludes).then(()=>console.log('Includes created'))
+	promise = promise.then(()=>{
 		log()
-		complete = 0
-	})
-	promise = files.reduce(addASPCalls, promise)
+		var c = 0
+		var interval = setInterval(()=>{
+			log('Creating calls' + '.'.repeat(c++))
+			if(c == 4) c = 0
+		}, 500)
+		return neo.createCalls()
+			.then(()=>clearInterval(interval))
+	}).then(()=>log('Calls created'))
 
 	return promise
 
@@ -21,11 +26,5 @@ export default function(files, log) {
 		return promise
 			.then(() => neo.createFile(file))
 			.then(()=>log(`Load files: ${++complete}/${files.length} files`))
-	}
-
-	function addASPCalls(promise, file) {
-		return promise
-			.then(()=> neo.addASPCalls(file))
-			.then(()=>log(`Load calls: ${++complete}/${files.length} files`))
 	}
 }

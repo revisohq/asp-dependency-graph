@@ -27,30 +27,44 @@ export function deleteAll() {
 	`)
 }
 
-export function addASPCalls(file) {
-	var callables = file.funcs.concat(file.subs)
-
-	var matchCallables = callables
-		.map(f=>f.name)
-		.concat(file.calls, flatmap(callables, callable => callable.calls))
-		.filter((v,i,a)=>a.indexOf(v)==i)
-		.map(name => `MATCH (c${name}:ASPCallable { name: '${name}' })`)
-
-	var fileCalls = file.calls.map(f => `CREATE (file)-[:CALLS]->(c${f})`)
-	var callableCalls = flatmap(callables, callable =>
-		callable.calls.map(f => `CREATE (c${callable.name})-[:CALLS]->(c${f})`)
-	)
-
-	if(fileCalls.length == 0 && callableCalls.length == 0) {
-		return Promise.resolve()
-	}
-
+export function createIncludes() {
 	return query(`
-		MATCH (file:File { path: {path}})
-		${matchCallables.join('\n')}
-		${fileCalls.join('\n')}
-		${callableCalls.join('\n')}
-	`, {path: file.path})
+		MATCH (file:File)
+		WITH file, split(file.includes, ',') AS includes
+		UNWIND includes AS includePath
+
+		MATCH (includedFile:File) WHERE includedFile.path = includePath
+		CREATE (file)-[:INCLUDES]->(includedFile)
+	`).then(()=>query(`
+		MATCH (file:File)
+		REMOVE file.includes
+	`))
+}
+
+export function createCalls() {
+	return query(`
+		MATCH (caller) WHERE caller.calls <> ''
+
+		OPTIONAL MATCH (file:File)-[:DEFINES]->(caller)
+		// We assume that callers without defines are files!
+		WITH caller, coalesce(file, caller) AS file
+
+		OPTIONAL MATCH (parent:File)-[:INCLUDES*]->(file)
+		WITH caller, [parent, file] AS files UNWIND files AS file
+		OPTIONAL MATCH (file)-[:INCLUDES*]->(child:File)
+		WITH caller, [file, child] AS files
+		UNWIND files AS file
+		WITH caller, collect(distinct file) AS files
+
+		WITH caller, files, split(caller.calls, ',') AS calls
+		UNWIND calls AS call
+		MATCH (callee:ASPCallable {name:call})<-[:DEFINES]-(file) WHERE file IN files
+		WITH caller, callee
+		CREATE (caller)-[:CALLS]->(callee)
+	`).then(()=>query(`
+		MATCH (caller)
+		REMOVE caller.calls
+	`))
 }
 
 export function createFile(file) {
@@ -64,13 +78,19 @@ export function createFile(file) {
 		`.trim())
 
 	let funcCreates = file.funcs.map((func, idx) => `
-		CREATE (file)-[:DEFINES]->(fn${idx}:ASPCallable:Function { name: '${func.name}' })
+		CREATE (file)-[:DEFINES]->(fn${idx}:ASPCallable:Function {
+			name: '${func.name}',
+			calls: '${func.calls.join(',')}'
+		})
 		${func.aspClientCalls.map(aspFn => `
 			CREATE (fn${idx})-[:CALLS]->(ac${aspFn})
 		`.trim()).join('\n')}
 	`.trim())
 	let subCreates = file.subs.map((sub, idx) => `
-		CREATE (file)-[:DEFINES]->(sub${idx}:ASPCallable:Sub { name: '${sub.name}' })
+		CREATE (file)-[:DEFINES]->(sub${idx}:ASPCallable:Sub {
+			name: '${sub.name}',
+			calls: '${sub.calls.join(',')}'
+		})
 		${sub.aspClientCalls.map(aspFn => `
 			CREATE (sub${idx})-[:CALLS]->(ac${aspFn})
 		`.trim()).join('\n')}
@@ -78,18 +98,14 @@ export function createFile(file) {
 	let aspClientFuncs = file.aspClientCalls.map(fn => `
 		CREATE (file)-[:CALLS]->(ac${fn})
 	`.trim())
-	let includeMatches = file.includes.filter((v,i,a)=>a.indexOf(v)==i).map(path => `
-		MERGE (\`file${path}\`:File { path: '${path}' })
-	`)
-	let includeCreates = file.includes.map(path => `
-		CREATE (file)-[:INCLUDES]->(\`file${path}\`)
-	`.trim())
 	return query(`
 		MERGE (aspClient:ASPClient)
 		${aspClientCallsCreates.join('\n')}
-		MERGE (file:File { path: '${file.path}' })
-		${includeMatches.join('\n')}
-		${includeCreates.join('\n')}
+		MERGE (file:File {
+			path: '${file.path}',
+			includes: '${file.includes.join(',')}',
+			calls: '${file.calls.join(',')}'
+		})
 		${funcCreates.join('\n')}
 		${subCreates.join('\n')}
 		${aspClientFuncs.join('\n')}
