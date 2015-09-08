@@ -38,13 +38,13 @@ export function createFile(file) {
 		`.trim())
 
 	let funcCreates = file.funcs.map((func, idx) => `
-		CREATE (file)-[:DEFINES]->(fn${idx}:Function { name: '${func.name}' })
+		CREATE (file)-[:DEFINES]->(fn${idx}:ASPCallable:Function { name: '${func.name}' })
 		${func.aspClientCalls.map(aspFn => `
 			CREATE (fn${idx})-[:CALLS]->(ac${aspFn})
 		`.trim()).join('\n')}
 	`.trim())
 	let subCreates = file.subs.map((sub, idx) => `
-		CREATE (file)-[:DEFINES]->(sub${idx}:Sub { name: '${sub.name}' })
+		CREATE (file)-[:DEFINES]->(sub${idx}:ASPCallable:Sub { name: '${sub.name}' })
 		${sub.aspClientCalls.map(aspFn => `
 			CREATE (sub${idx})-[:CALLS]->(ac${aspFn})
 		`.trim()).join('\n')}
