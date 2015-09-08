@@ -9,6 +9,7 @@ export default function(files, log) {
 	promise.then(()=>{complete = 0})
 	promise = files.reduce(addFile, promise)
 	promise = promise.then(neo.createIncludes).then(()=>console.log('Includes created'))
+	promise = promise.then(neo.createCalls).then(()=>console.log('Calls created'))
 
 	return promise
 

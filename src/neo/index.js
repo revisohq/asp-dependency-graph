@@ -41,6 +41,20 @@ export function createIncludes() {
 	`))
 }
 
+export function createCalls() {
+	return query(`
+		MATCH (caller)
+		WITH caller, split(caller.calls, ',') AS calls
+		UNWIND calls AS call
+
+		MATCH (callee:ASPCallable) WHERE callee.name = call
+		CREATE (caller)-[:CALLS]->(callee)
+	`).then(()=>query(`
+		MATCH (caller)
+		REMOVE caller.calls
+	`))
+}
+
 export function createFile(file) {
 	let aspClientCallsCreates = file.aspClientCalls.concat(
 		flatmap(file.funcs, func=>func.aspClientCalls),
@@ -52,13 +66,19 @@ export function createFile(file) {
 		`.trim())
 
 	let funcCreates = file.funcs.map((func, idx) => `
-		CREATE (file)-[:DEFINES]->(fn${idx}:ASPCallable:Function { name: '${func.name}' })
+		CREATE (file)-[:DEFINES]->(fn${idx}:ASPCallable:Function {
+			name: '${func.name}',
+			calls: '${func.calls.join(',')}'
+		})
 		${func.aspClientCalls.map(aspFn => `
 			CREATE (fn${idx})-[:CALLS]->(ac${aspFn})
 		`.trim()).join('\n')}
 	`.trim())
 	let subCreates = file.subs.map((sub, idx) => `
-		CREATE (file)-[:DEFINES]->(sub${idx}:ASPCallable:Sub { name: '${sub.name}' })
+		CREATE (file)-[:DEFINES]->(sub${idx}:ASPCallable:Sub {
+			name: '${sub.name}',
+			calls: '${sub.calls.join(',')}'
+		})
 		${sub.aspClientCalls.map(aspFn => `
 			CREATE (sub${idx})-[:CALLS]->(ac${aspFn})
 		`.trim()).join('\n')}
@@ -71,7 +91,8 @@ export function createFile(file) {
 		${aspClientCallsCreates.join('\n')}
 		MERGE (file:File {
 			path: '${file.path}',
-			includes: '${file.includes.join(',')}'
+			includes: '${file.includes.join(',')}',
+			calls: '${file.calls.join(',')}'
 		})
 		${funcCreates.join('\n')}
 		${subCreates.join('\n')}
