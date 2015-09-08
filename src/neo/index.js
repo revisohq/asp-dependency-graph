@@ -27,6 +27,20 @@ export function deleteAll() {
 	`)
 }
 
+export function createIncludes() {
+	return query(`
+		MATCH (file:File)
+		WITH file, split(file.includes, ',') AS includes
+		UNWIND includes AS includePath
+
+		MATCH (includedFile:File) WHERE includedFile.path = includePath
+		CREATE (file)-[:INCLUDES]->(includedFile)
+	`).then(()=>query(`
+		MATCH (file:File)
+		REMOVE file.includes
+	`))
+}
+
 export function createFile(file) {
 	let aspClientCallsCreates = file.aspClientCalls.concat(
 		flatmap(file.funcs, func=>func.aspClientCalls),
@@ -55,7 +69,10 @@ export function createFile(file) {
 	return query(`
 		MERGE (aspClient:ASPClient)
 		${aspClientCallsCreates.join('\n')}
-		MERGE (file:File { path: '${file.path}' })
+		MERGE (file:File {
+			path: '${file.path}',
+			includes: '${file.includes.join(',')}'
+		})
 		${funcCreates.join('\n')}
 		${subCreates.join('\n')}
 		${aspClientFuncs.join('\n')}
