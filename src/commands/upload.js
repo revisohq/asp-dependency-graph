@@ -9,7 +9,16 @@ export default function(files, log) {
 	promise.then(()=>{complete = 0})
 	promise = files.reduce(addFile, promise)
 	promise = promise.then(neo.createIncludes).then(()=>console.log('Includes created'))
-	promise = promise.then(neo.createCalls).then(()=>console.log('Calls created'))
+	promise = promise.then(()=>{
+		log()
+		var c = 0
+		var interval = setInterval(()=>{
+			log('Creating calls' + '.'.repeat(c++))
+			if(c == 4) c = 0
+		}, 500)
+		return neo.createCalls()
+			.then(()=>clearInterval(interval))
+	}).then(()=>log('Calls created'))
 
 	return promise
 

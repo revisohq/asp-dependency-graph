@@ -43,11 +43,23 @@ export function createIncludes() {
 
 export function createCalls() {
 	return query(`
-		MATCH (caller)
-		WITH caller, split(caller.calls, ',') AS calls
-		UNWIND calls AS call
+		MATCH (caller) WHERE caller.calls <> ''
 
-		MATCH (callee:ASPCallable) WHERE callee.name = call
+		OPTIONAL MATCH (file:File)-[:DEFINES]->(caller)
+		// We assume that callers without defines are files!
+		WITH caller, coalesce(file, caller) AS file
+
+		OPTIONAL MATCH (parent:File)-[:INCLUDES*]->(file)
+		WITH caller, [parent, file] AS files UNWIND files AS file
+		OPTIONAL MATCH (file)-[:INCLUDES*]->(child:File)
+		WITH caller, [file, child] AS files
+		UNWIND files AS file
+		WITH caller, collect(distinct file) AS files
+
+		WITH caller, files, split(caller.calls, ',') AS calls
+		UNWIND calls AS call
+		MATCH (callee:ASPCallable {name:call})<-[:DEFINES]-(file) WHERE file IN files
+		WITH caller, callee
 		CREATE (caller)-[:CALLS]->(callee)
 	`).then(()=>query(`
 		MATCH (caller)
