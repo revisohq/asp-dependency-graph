@@ -27,6 +27,32 @@ export function deleteAll() {
 	`)
 }
 
+export function addASPCalls(file) {
+	var callables = file.funcs.concat(file.subs)
+
+	var matchCallables = callables
+		.map(f=>f.name)
+		.concat(file.calls, flatmap(callables, callable => callable.calls))
+		.filter((v,i,a)=>a.indexOf(v)==i)
+		.map(name => `MATCH (c${name}:ASPCallable { name: '${name}' })`)
+
+	var fileCalls = file.calls.map(f => `CREATE (file)-[:CALLS]->(c${f})`)
+	var callableCalls = flatmap(callables, callable =>
+		callable.calls.map(f => `CREATE (c${callable.name})-[:CALLS]->(c${f})`)
+	)
+
+	if(fileCalls.length == 0 && callableCalls.length == 0) {
+		return Promise.resolve()
+	}
+
+	return query(`
+		MATCH (file:File { path: {path}})
+		${matchCallables.join('\n')}
+		${fileCalls.join('\n')}
+		${callableCalls.join('\n')}
+	`, {path: file.path})
+}
+
 export function createFile(file) {
 	let aspClientCallsCreates = file.aspClientCalls.concat(
 		flatmap(file.funcs, func=>func.aspClientCalls),

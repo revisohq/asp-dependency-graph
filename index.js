@@ -40,7 +40,7 @@ function uploadCommand(yargs) {
 		fs.readFile(jsonPath, 'utf8', (err, data) => err ? reject(err) : resolve(data))
 	})
 		.then(JSON.parse)
-		.then(data => upload(data, message => log(message + '\n')))
+		.then(data => upload(data, message => message ? log(message + '\n') : console.log('')))
 
 	hookUpOutput(result)
 }
