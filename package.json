@@ -1,7 +1,7 @@
 {
-  "name": "asp-to-neo",
+  "name": "asp-dependency-graph",
   "version": "1.0.0",
-  "description": "",
+  "description": "Visualizing ASP dependencies via Neo4j",
   "scripts": {
     "analyze": "babel-node --stage=0 index.js analyze",
     "upload": "babel-node --stage=0 index.js upload",
