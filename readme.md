@@ -2,7 +2,7 @@ asp-dependency-graph
 ====================
 
 Visualizing ASP dependencies via neo4j. The tracked dependencies are included
-files, ASP functions and what called said functions.
+files, ASP functions and what called said functions. [See the wiki for more detailed documentation](https://github.com/debitoor/asp-dependency-graph/wiki).
 
 
 How to install
