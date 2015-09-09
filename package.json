@@ -24,6 +24,6 @@
     "mocha": "^2.3.0"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "private": true
 }
