@@ -18,6 +18,10 @@ function analyzeCommand(yargs) {
 	var args = yargs
 		.usage('$0 analyze <root-folder-for-asp>')
 		.required(2, 'The root folder is required. The code will recurse through the folder to find *.asp files')
+		.option('blacklist', {
+			alias: 'b',
+			description: 'A JSON file describing objects to ignore. See blacklist.example.json for details.',
+		})
 		.help('help')
 		.argv
 
