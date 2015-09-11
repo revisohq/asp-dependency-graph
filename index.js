@@ -18,15 +18,18 @@ function analyzeCommand(yargs) {
 	var args = yargs
 		.usage('$0 analyze <root-folder-for-asp>')
 		.required(2, 'The root folder is required. The code will recurse through the folder to find *.asp files')
-		.option('blacklist', {
-			alias: 'b',
+		.option('blacklist-file', {
 			description: 'A JSON file describing objects to ignore. See blacklist.example.json for details.',
 		})
 		.help('help')
 		.argv
 
 	var baseDir = args._[1]
-	var result = analyze(baseDir)
+	var options = {}
+	if(args.blacklistFile) {
+		options.blacklist = JSON.parse(fs.readFileSync(args.blacklistFile, 'utf8'))
+	}
+	var result = analyze(baseDir, options)
 		.then(data => JSON.stringify(data, null, '  '))
 	hookUpOutput(result)
 }
