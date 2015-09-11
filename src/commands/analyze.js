@@ -3,20 +3,31 @@ import throat from 'throat'
 import flatmap from 'flatmap'
 import analyzer from '../analyze-asp-file'
 
-export default function(baseDir) {
+export default function(baseDir, options = {}) {
+	var blacklist = options.blacklist || {}
+	var blacklistedFiles = blacklist.files || []
+	var blacklistedFunctions = blacklist.functions || []
+
 	return new Promise((resolve, reject) => {
 		glob('**/*.asp', { cwd: baseDir }, (err, files) => err ? reject(err) : resolve(files))
 	})
-	.then(files => files.map(throat(1, file => analyzer(baseDir, file))))
+	.then(files => files
+		.filter(file => blacklistedFiles.indexOf(file) == -1)
+		.map(throat(1, file => analyzer(baseDir, file)))
+	)
 	.then(a => Promise.all(a))
 	.then(files => {
 		let allFunctions = flatmap(files, file => file.funcs.concat(file.subs))
+			.filter(fn => blacklistedFunctions.indexOf(fn.name) == -1)
 		return files.map(throat(1, file => analyzer(baseDir, file.path, allFunctions)))
 	})
 	.then(a => Promise.all(a))
 	.then(files => files.map(file => {
 		delete file.dims
+		file.includes = file.includes.filter(inc => blacklistedFiles.indexOf(inc) == -1)
+		file.funcs = file.funcs.filter(s => blacklistedFunctions.indexOf(s.name) == -1)
 		file.funcs.forEach(f => { delete f.dims })
+		file.subs = file.subs.filter(s => blacklistedFunctions.indexOf(s.name) == -1)
 		file.subs.forEach(f => { delete f.dims })
 		return file
 	}))

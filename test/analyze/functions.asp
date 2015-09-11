@@ -30,6 +30,14 @@ end function
 function inlineWithParans()
 end function
 
+function blacklistedFunction()
+	ASPClient.clientCallInBlacklistedFunction()
+end function
+
+sub blacklistedSub()
+	ASPClient.clientCallInBlacklistedSub()
+end sub
+
 function abc()
 end function
 function abcdef()

@@ -6,7 +6,11 @@ const expectedData = require('./expected.json')
 
 describe('analyze.js', function() {
 	before(function() {
-		return analyze(path.join(__dirname, 'analyze')).then(actualData => {
+		var blacklist = {
+			files: ['blacklisted-file.asp'],
+			functions: ['blacklistedsub', 'blacklistedfunction'],
+		}
+		return analyze(path.join(__dirname, 'analyze'), { blacklist }).then(actualData => {
 			this.actualData = actualData
 		})
 	})
