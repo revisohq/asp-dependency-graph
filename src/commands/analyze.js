@@ -5,14 +5,14 @@ import analyzer from '../analyze-asp-file'
 
 export default function(baseDir, options = {}) {
 	var blacklist = options.blacklist || {}
-	var blacklistedFiles = blacklist.files || []
-	var blacklistedFunctions = blacklist.functions || []
+	var blacklistedFiles = (blacklist.files || []).map(f => f.toLocaleLowerCase())
+	var blacklistedFunctions = (blacklist.functions || []).map(f => f.toLocaleLowerCase())
 
 	return new Promise((resolve, reject) => {
 		glob('**/*.asp', { cwd: baseDir }, (err, files) => err ? reject(err) : resolve(files))
 	})
 	.then(files => files
-		.filter(file => blacklistedFiles.indexOf(file) == -1)
+		.filter(file => blacklistedFiles.indexOf(file.toLocaleLowerCase()) == -1)
 		.map(throat(1, file => analyzer(baseDir, file)))
 	)
 	.then(a => Promise.all(a))

@@ -150,9 +150,12 @@ export default function(baseDir, file, allFunctions = []) {
 					// We are returning a value
 					if(store.name == wrap.name) return
 
+					let fn = allFunctions.find(f => f.name == store.name)
+					// The current store is a blacklisted function. Skip!
+					if(fn == null) return
+
 					// We are referencing a local var instead of a function
-					let allDims = allFunctions.find(f => f.name == store.name).dims
-					if(allDims.indexOf(wrap.name) != -1) return
+					if(fn.dims.indexOf(wrap.name) != -1) return
 				}
 				store.calls.push(wrap.name)
 			}

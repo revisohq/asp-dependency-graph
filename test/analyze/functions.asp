@@ -32,10 +32,12 @@ end function
 
 function blacklistedFunction()
 	ASPClient.clientCallInBlacklistedFunction()
+	inlineWithoutParans()
 end function
 
 sub blacklistedSub()
 	ASPClient.clientCallInBlacklistedSub()
+	inlineWithParans()
 end sub
 
 function abc()
