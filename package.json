@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Visualizing ASP dependencies via Neo4j",
   "scripts": {
-    "analyze": "babel-node --stage=0 index.js analyze",
-    "upload": "babel-node --stage=0 index.js upload",
+    "analyze": "babel-node --stage=0 -- index.js analyze",
+    "upload": "babel-node --stage=0 -- index.js upload",
     "test": "mocha"
   },
   "dependencies": {
