@@ -1,7 +1,9 @@
 import fs from 'fs'
 import path from 'path'
+import util from "util"
+import stream from "stream"
 import split from 'split'
-import eos from 'end-of-stream'
+const pipeline = util.promisify(stream.pipeline)
 
 const funcRegex = /^function +([a-z_0-9]+) *\(([^)]*)/
 const subRegex = /^sub +([a-z_0-9]+) *\(([^)]*)\)/
@@ -34,10 +36,11 @@ export default function(baseDir, file, allFunctions = []) {
 
 	var lines = []
 	var currentLine = ''
-	var inputStream = fs.createReadStream(path.join(baseDir, file))
-		.pipe(split())
-		.on('data', l => {
-			let line = l.toLocaleLowerCase()
+	return pipeline(
+		fs.createReadStream(path.join(baseDir, file)),
+		split(),
+		new stream.Transform({ transform: (chunk, encoding, callback) => {
+			let line = chunk.toString().toLocaleLowerCase()
 			let nextStart = line.indexOf('<%')
 			let nextStop = line.indexOf('%>')
 			while(/<%|%>/.test(line)) {
@@ -69,11 +72,9 @@ export default function(baseDir, file, allFunctions = []) {
 				}
 			}
 			lines.push(line)
-		})
-
-	return new Promise((resolve, reject) => {
-		eos(inputStream, err => err ? reject(err) : resolve())
-	})
+			callback()
+		} }),
+	)
 		.then(()=>{
 			lines.filter(line => {
 				var match
