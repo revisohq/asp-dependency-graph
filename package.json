@@ -12,11 +12,11 @@
     "babel-core": "^5.8.23",
     "end-of-stream": "^1.1.0",
     "flatmap": "0.0.3",
-    "glob": "^5.0.14",
+    "glob": "^7.1.6",
     "neo4j": "^1.1.1",
     "single-line-log": "^1.0.0",
     "split": "^1.0.0",
-    "throat": "^2.0.2",
+    "throat": "^5.0.0",
     "yargs": "^15.3.0"
   },
   "devDependencies": {
