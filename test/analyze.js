@@ -1,7 +1,13 @@
 import path from 'path'
-import { expect } from 'chai'
-import { analyze } from '../src/commands'
+import { createRequire } from "module"
+import { fileURLToPath } from "url"
+import chai from 'chai'
+const { expect } = chai
+import { analyze } from '../src/commands/index.js'
 
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const require = createRequire(import.meta.url)
 const expectedData = require('./expected.json')
 
 describe('analyze.js', function() {

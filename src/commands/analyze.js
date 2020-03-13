@@ -1,7 +1,6 @@
 import glob from 'glob'
 import throat from 'throat'
-import flatmap from 'flatmap'
-import analyzer from '../analyze-asp-file'
+import analyzer from '../analyze-asp-file.js'
 
 export default function(baseDir, options = {}) {
 	var blacklist = options.blacklist || {}
@@ -17,7 +16,7 @@ export default function(baseDir, options = {}) {
 	)
 	.then(a => Promise.all(a))
 	.then(files => {
-		let allFunctions = flatmap(files, file => file.funcs.concat(file.subs))
+		let allFunctions = files.flatMap(file => file.funcs.concat(file.subs))
 			.filter(fn => blacklistedFunctions.indexOf(fn.name) == -1)
 		return files.map(throat(1, file => analyzer(baseDir, file.path, allFunctions)))
 	})

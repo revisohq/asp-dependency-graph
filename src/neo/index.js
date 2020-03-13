@@ -1,25 +1,35 @@
-import { GraphDatabase } from 'neo4j'
-import flatmap from 'flatmap'
+import neo4j from 'neo4j-driver'
 
-let initDeferred
-let initPromise = new Promise((resolve, reject) => {
-	initDeferred = { resolve, reject }
-})
+export class Database {
+	#driver
+	#session
+	#query
+	constructor(url, auth) {
+		this.#driver = neo4j.driver(url)
+		this.#session = this.#driver.session()
+		this.#query = (c) => this.#session.run(c)
+	}
 
-function query(query, ...params) {
-	return initPromise.then(graph => new Promise((resolve, reject) => {
-		graph.query(query, ...params, (err, res) => {
-			err ? reject(err) : resolve(res)
-		})
-	}))
+	async close() {
+		await this.#session.close()
+		await this.#driver.close()
+	}
+
+	deleteAll() {
+		return deleteAll(this.#query)
+	}
+	createIncludes() {
+		return createIncludes(this.#query)
+	}
+	createCalls() {
+		return createCalls(this.#query)
+	}
+	createFile(file) {
+		return createFile(this.#query, file)
+	}
 }
 
-export function init(url) {
-	initDeferred.resolve(new GraphDatabase(url))
-	return query
-}
-
-export function deleteAll() {
+function deleteAll(query) {
 	return query(`
 		MATCH (n)
 		OPTIONAL MATCH (n)-[r]-()
@@ -27,7 +37,7 @@ export function deleteAll() {
 	`)
 }
 
-export function createIncludes() {
+function createIncludes(query) {
 	return query(`
 		MATCH (file:File)
 		WITH file, split(file.includes, ',') AS includes
@@ -41,7 +51,7 @@ export function createIncludes() {
 	`))
 }
 
-export function createCalls() {
+function createCalls(query) {
 	return query(`
 		MATCH (caller) WHERE caller.calls <> ''
 
@@ -67,10 +77,10 @@ export function createCalls() {
 	`))
 }
 
-export function createFile(file) {
+function createFile(query, file) {
 	let aspClientCallsCreates = file.aspClientCalls.concat(
-		flatmap(file.funcs, func=>func.aspClientCalls),
-		flatmap(file.subs, sub=>sub.aspClientCalls),
+		file.funcs.flatMap(func => func.aspClientCalls),
+		file.subs.flatMap(sub => sub.aspClientCalls),
 	)
 		.filter((v,i,a)=>a.indexOf(v)==i)
 		.map(fn => `

@@ -1,8 +1,8 @@
 import fs from 'fs'
-import flatmap from 'flatmap'
 import path from 'path'
-import split from 'split'
-import eos from 'end-of-stream'
+import util from "util"
+import stream from "stream"
+const pipeline = util.promisify(stream.pipeline)
 
 const funcRegex = /^function +([a-z_0-9]+) *\(([^)]*)/
 const subRegex = /^sub +([a-z_0-9]+) *\(([^)]*)\)/
@@ -35,10 +35,28 @@ export default function(baseDir, file, allFunctions = []) {
 
 	var lines = []
 	var currentLine = ''
-	var inputStream = fs.createReadStream(path.join(baseDir, file))
-		.pipe(split())
-		.on('data', l => {
-			let line = l.toLocaleLowerCase()
+	return pipeline(
+		fs.createReadStream(path.join(baseDir, file)),
+		new stream.Transform({
+			transform(chunk, encoding, callback) {
+				const str = chunk.toString()
+				const lines = str.split(/\r?\n/g)
+				lines[0] = (this.leftoverLine || "") + lines[0]
+				this.leftoverLine = lines.pop()
+				for(const line of lines) {
+					this.push(line)
+				}
+				callback()
+			},
+			flush(callback) {
+				if(this.leftoverLine || "") {
+					this.push(this.leftoverLine)
+				}
+				callback()
+			},
+		}),
+		new stream.Transform({ transform: (chunk, encoding, callback) => {
+			let line = chunk.toString().toLocaleLowerCase()
 			let nextStart = line.indexOf('<%')
 			let nextStop = line.indexOf('%>')
 			while(/<%|%>/.test(line)) {
@@ -70,13 +88,11 @@ export default function(baseDir, file, allFunctions = []) {
 				}
 			}
 			lines.push(line)
-		})
-
-	return new Promise((resolve, reject) => {
-		eos(inputStream, err => err ? reject(err) : resolve())
-	})
+			callback()
+		} }),
+	)
 		.then(()=>{
-			flatmap(lines.filter(line => {
+			lines.filter(line => {
 				var match
 				if(match = line.match(includeRegex)) {
 					data.includes.push(path.join(dirname, match[1]))
@@ -90,7 +106,9 @@ export default function(baseDir, file, allFunctions = []) {
 					return false
 				}
 				return isInASP
-			}), line => line.replace(stringRegex, '""').split(':').map(l => l.trim())).forEach(line => {
+			})
+			.flatMap(line => line.replace(stringRegex, '""').split(':').map(l => l.trim()))
+			.forEach(line => {
 				if(line == '') return
 
 				line = line.replace(commentRegex, '')

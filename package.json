@@ -1,27 +1,26 @@
 {
   "name": "asp-dependency-graph",
+  "type": "module",
   "version": "1.0.0",
   "description": "Visualizing ASP dependencies via Neo4j",
   "scripts": {
-    "analyze": "babel-node --stage=0 -- index.js analyze",
-    "upload": "babel-node --stage=0 -- index.js upload",
-    "test": "mocha"
+    "analyze": "node --experimental-modules index.js analyze",
+    "upload": "node --experimental-modules index.js upload",
+    "test": "mocha --experimental-modules"
+  },
+  "engines": {
+    "node": ">=12.16.1"
   },
   "dependencies": {
-    "babel": "^5.8.23",
-    "babel-core": "^5.8.23",
-    "end-of-stream": "^1.1.0",
-    "flatmap": "0.0.3",
-    "glob": "^5.0.14",
-    "neo4j": "^1.1.1",
+    "glob": "^7.1.6",
+    "neo4j-driver": "^4.0.1",
     "single-line-log": "^1.0.0",
-    "split": "^1.0.0",
-    "throat": "^2.0.2",
-    "yargs": "^3.23.0"
+    "throat": "^5.0.0",
+    "yargs": "^15.3.0"
   },
   "devDependencies": {
-    "chai": "^3.2.0",
-    "mocha": "^2.3.0"
+    "chai": "^4.2.0",
+    "mocha": "^7.1.0"
   },
   "author": "",
   "license": "MIT",

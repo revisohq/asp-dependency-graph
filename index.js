@@ -1,29 +1,34 @@
 import yargs from 'yargs'
 import fs from 'fs'
-import { stdout as log } from 'single-line-log'
+import sll from 'single-line-log'
+const { stdout: log } = sll
 
-import { analyze, upload } from './src/commands'
+import { analyze, upload } from './src/commands/index.js'
 
 var baseDir = process.argv[2]
 
 yargs
 	.usage('$0 <command>')
-	.command('analyze', 'Read through ASP files for data', analyzeCommand)
-	.command('upload', 'Loads JSON file into neo4j', uploadCommand)
+	.command('analyze', 'Read through ASP files for data',
+		(yargs) => yargs
+			.usage('$0 analyze <root-folder-for-asp>')
+			.required(1, 'The root folder is required. The code will recurse through the folder to find *.asp files')
+			.option('blacklist-file', {
+				description: 'A JSON file describing objects to ignore. See blacklist.example.json for details.',
+			}),
+		analyzeCommand,
+	)
+	.command('upload', 'Loads JSON file into neo4j',
+		(yargs) => yargs
+			.usage('$0 upload <json-file>')
+			.required(1, 'The json-file is required'),
+		uploadCommand,
+	)
 	.help('help')
 	.required(1, '')
 	.argv
 
-function analyzeCommand(yargs) {
-	var args = yargs
-		.usage('$0 analyze <root-folder-for-asp>')
-		.required(2, 'The root folder is required. The code will recurse through the folder to find *.asp files')
-		.option('blacklist-file', {
-			description: 'A JSON file describing objects to ignore. See blacklist.example.json for details.',
-		})
-		.help('help')
-		.argv
-
+function analyzeCommand(args) {
 	var baseDir = args._[1]
 	var options = {}
 	if(args.blacklistFile) {
@@ -34,13 +39,7 @@ function analyzeCommand(yargs) {
 	hookUpOutput(result)
 }
 
-function uploadCommand(yargs) {
-	var args = yargs
-		.usage('$0 upload <json-file>')
-		.required(2, 'The json-file is required')
-		.help('help')
-		.argv
-
+function uploadCommand(args) {
 	var jsonPath = args._[1]
 
 	var result = new Promise((resolve, reject) => {
