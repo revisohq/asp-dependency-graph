@@ -1,5 +1,4 @@
 import neo4j from 'neo4j-driver'
-import flatmap from 'flatmap'
 
 export class Database {
 	#driver
@@ -80,8 +79,8 @@ function createCalls(query) {
 
 function createFile(query, file) {
 	let aspClientCallsCreates = file.aspClientCalls.concat(
-		flatmap(file.funcs, func=>func.aspClientCalls),
-		flatmap(file.subs, sub=>sub.aspClientCalls),
+		file.funcs.flatMap(func => func.aspClientCalls),
+		file.subs.flatMap(sub => sub.aspClientCalls),
 	)
 		.filter((v,i,a)=>a.indexOf(v)==i)
 		.map(fn => `

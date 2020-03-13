@@ -1,5 +1,4 @@
 import fs from 'fs'
-import flatmap from 'flatmap'
 import path from 'path'
 import split from 'split'
 import eos from 'end-of-stream'
@@ -76,7 +75,7 @@ export default function(baseDir, file, allFunctions = []) {
 		eos(inputStream, err => err ? reject(err) : resolve())
 	})
 		.then(()=>{
-			flatmap(lines.filter(line => {
+			lines.filter(line => {
 				var match
 				if(match = line.match(includeRegex)) {
 					data.includes.push(path.join(dirname, match[1]))
@@ -90,7 +89,9 @@ export default function(baseDir, file, allFunctions = []) {
 					return false
 				}
 				return isInASP
-			}), line => line.replace(stringRegex, '""').split(':').map(l => l.trim())).forEach(line => {
+			})
+			.flatMap(line => line.replace(stringRegex, '""').split(':').map(l => l.trim()))
+			.forEach(line => {
 				if(line == '') return
 
 				line = line.replace(commentRegex, '')
