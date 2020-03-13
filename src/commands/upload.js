@@ -1,4 +1,4 @@
-import * as neo from '../neo'
+import * as neo from '../neo/index.js'
 
 neo.init('http://localhost:7474')
 

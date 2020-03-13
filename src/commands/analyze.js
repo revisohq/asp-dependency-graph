@@ -1,7 +1,7 @@
 import glob from 'glob'
 import throat from 'throat'
 import flatmap from 'flatmap'
-import analyzer from '../analyze-asp-file'
+import analyzer from '../analyze-asp-file.js'
 
 export default function(baseDir, options = {}) {
 	var blacklist = options.blacklist || {}

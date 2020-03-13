@@ -1,8 +1,9 @@
 import yargs from 'yargs'
 import fs from 'fs'
-import { stdout as log } from 'single-line-log'
+import sll from 'single-line-log'
+const { stdout: log } = sll
 
-import { analyze, upload } from './src/commands'
+import { analyze, upload } from './src/commands/index.js'
 
 var baseDir = process.argv[2]
 

@@ -1,5 +1,6 @@
-import { GraphDatabase } from 'neo4j'
+import neo4j from 'neo4j'
 import flatmap from 'flatmap'
+const { GraphDatabase } = neo4j
 
 let initDeferred
 let initPromise = new Promise((resolve, reject) => {

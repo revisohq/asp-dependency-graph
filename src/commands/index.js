@@ -1,7 +1,2 @@
-import analyze from './analyze'
-import upload from './upload'
-
-export default {
-	analyze,
-	upload,
-}
+export { default as analyze } from "./analyze.js"
+export { default as upload } from "./upload.js"
