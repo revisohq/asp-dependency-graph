@@ -1,6 +1,6 @@
-import * as neo from '../neo/index.js'
+import { Database } from '../neo/index.js'
 
-neo.init('http://localhost:7474')
+const neo = new Database('neo4j://localhost')
 
 export default function(files, log) {
 	var complete = 0
@@ -8,7 +8,7 @@ export default function(files, log) {
 
 	promise.then(()=>{complete = 0})
 	promise = files.reduce(addFile, promise)
-	promise = promise.then(neo.createIncludes).then(()=>console.log('Includes created'))
+	promise = promise.then(() => neo.createIncludes()).then(()=>console.log('Includes created'))
 	promise = promise.then(()=>{
 		log()
 		var c = 0
@@ -18,7 +18,9 @@ export default function(files, log) {
 		}, 500)
 		return neo.createCalls()
 			.then(()=>clearInterval(interval))
-	}).then(()=>log('Calls created'))
+	})
+	.then(()=>log('Calls created'))
+	.finally(() => neo.close())
 
 	return promise
 
