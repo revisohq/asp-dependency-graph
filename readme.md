@@ -8,10 +8,10 @@ files, ASP functions and what called said functions. [See the wiki for more deta
 How to install
 --------------
 
-1. Install [neo4j](http://neo4j.com) and host a local server.
-2. Install [node.js](https://nodejs.org). This might not run on anything before v 12.16 (current LTS).
-3. Check out the code.
-4. Run `npm install`.
+1. Install [node.js](https://nodejs.org). This might not run on anything before v 12.16 (current LTS).
+2. Check out the code.
+3. Run `npm install`.
+4. Install docker. Start the neo4j server using `docker-compose up -d`.
 
 
 How to use
