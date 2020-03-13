@@ -15,7 +15,6 @@
     "glob": "^7.1.6",
     "neo4j-driver": "^4.0.1",
     "single-line-log": "^1.0.0",
-    "split": "^1.0.0",
     "throat": "^5.0.0",
     "yargs": "^15.3.0"
   },

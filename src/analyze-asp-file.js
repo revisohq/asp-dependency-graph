@@ -2,7 +2,6 @@ import fs from 'fs'
 import path from 'path'
 import util from "util"
 import stream from "stream"
-import split from 'split'
 const pipeline = util.promisify(stream.pipeline)
 
 const funcRegex = /^function +([a-z_0-9]+) *\(([^)]*)/
@@ -38,7 +37,24 @@ export default function(baseDir, file, allFunctions = []) {
 	var currentLine = ''
 	return pipeline(
 		fs.createReadStream(path.join(baseDir, file)),
-		split(),
+		new stream.Transform({
+			transform(chunk, encoding, callback) {
+				const str = chunk.toString()
+				const lines = str.split(/\r?\n/g)
+				lines[0] = (this.leftoverLine || "") + lines[0]
+				this.leftoverLine = lines.pop()
+				for(const line of lines) {
+					this.push(line)
+				}
+				callback()
+			},
+			flush(callback) {
+				if(this.leftoverLine || "") {
+					this.push(this.leftoverLine)
+				}
+				callback()
+			},
+		}),
 		new stream.Transform({ transform: (chunk, encoding, callback) => {
 			let line = chunk.toString().toLocaleLowerCase()
 			let nextStart = line.indexOf('<%')
