@@ -8,6 +8,9 @@
     "upload": "node --experimental-modules index.js upload",
     "test": "mocha --experimental-modules"
   },
+  "engines": {
+    "node": ">=12.16.1"
+  },
   "dependencies": {
     "end-of-stream": "^1.1.0",
     "flatmap": "0.0.3",
