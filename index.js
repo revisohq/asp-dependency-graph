@@ -11,8 +11,12 @@ yargs
 	.usage('$0 <command>')
 	.command('analyze', 'Read through ASP files for data',
 		(yargs) => yargs
-			.usage('$0 analyze <root-folder-for-asp>')
+			.usage('$0 analyze --output <output-file> <root-folder-for-asp>')
 			.required(1, 'The root folder is required. The code will recurse through the folder to find *.asp files')
+			.option('output', {
+				description: 'Path to the output file',
+				required: true,
+			})
 			.option('blacklist-file', {
 				description: 'A JSON file describing objects to ignore. See blacklist.example.json for details.',
 			}),
@@ -20,7 +24,7 @@ yargs
 	)
 	.command('upload', 'Loads JSON file into neo4j',
 		(yargs) => yargs
-			.usage('$0 upload <json-file>')
+			.usage('$0 upload <output-from-analyze>')
 			.required(1, 'The json-file is required'),
 		uploadCommand,
 	)
@@ -36,7 +40,7 @@ function analyzeCommand(args) {
 	}
 	var result = analyze(baseDir, options)
 		.then(data => JSON.stringify(data, null, '  '))
-	hookUpOutput(result)
+	hookUpOutput(result, args.output)
 }
 
 function uploadCommand(args) {
@@ -51,10 +55,13 @@ function uploadCommand(args) {
 	hookUpOutput(result)
 }
 
-function hookUpOutput(promise) {
+function hookUpOutput(promise, outputPath) {
 	promise.then(result => {
-		if(result != null) console.log(result)
-	}, e => {
+		if(result != null) {
+			return fs.promises.writeFile(outputPath, result)
+		}
+	})
+	.catch(e => {
 		console.error(e.stack)
 		process.exit(1)
 	})

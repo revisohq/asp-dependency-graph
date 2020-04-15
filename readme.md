@@ -20,7 +20,7 @@ How to use
 Start by running the tests (`npm test`). This should show that node.js and
 dependencies are installed correctly.
 
-Then run `npm run analyze -- <path-to-asp> > <path-to-output.json>` to output
+Then run `npm run analyze -- --output <path-to-output.json> <path-to-asp>` to output
 the result into a file.
 
 To upload the file into neo4j, run `npm run upload -- <path-to-output.json>`.
