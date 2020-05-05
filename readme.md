@@ -29,4 +29,4 @@ This can easily take 3 mins. It is currently hardcoded against neo4j running on
 
 For more info on setup, see [the setup.md guide](docs/setup.md).
 
-For more info on queries, see [the guide on some bundled queries](docs/queries).
+For more info on queries, see [the guide on some bundled queries](docs/queries.md).
