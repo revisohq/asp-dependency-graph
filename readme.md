@@ -26,3 +26,7 @@ the result into a file.
 To upload the file into neo4j, run `npm run upload -- <path-to-output.json>`.
 This can easily take 3 mins. It is currently hardcoded against neo4j running on
 `localhost:7474` without authentication.
+
+For more info on setup, see [the setup.md guide](docs/setup.md).
+
+For more info on queries, see [the guide on some bundled queries](docs/queries).
